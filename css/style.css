@@ -139,13 +139,21 @@ body::before {
     transform: scale(1.02);
 }
 
+/* ИЗМЕНЕНО: 2 колонки вместо 3 */
 .recipe-list {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
     max-height: 500px;
     overflow-y: auto;
     padding-right: 5px;
+}
+
+/* Для мобильных устройств - одна колонка */
+@media (max-width: 768px) {
+    .recipe-list {
+        grid-template-columns: 1fr;
+    }
 }
 
 .recipe-card {
