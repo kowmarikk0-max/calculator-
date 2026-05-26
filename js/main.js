@@ -15,7 +15,8 @@ function renderCategoryButtons(active = null) {
             b.innerText = total; 
             btn.appendChild(b); 
         }
-        btn.addEventListener('click', () => { 
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
             renderCraftPage(cat); 
             renderCategoryButtons(cat); 
         });
@@ -29,6 +30,10 @@ function renderCraftPage(category) {
     if (!titleEl) return;
     const info = categoriesData[category];
     if (!info) return;
+    
+    // Сохраняем текущую позицию прокрутки
+    const scrollY = window.scrollY;
+    
     titleEl.innerHTML = `${info.icon || '🔧'} ${category} | Создано: <span id="categoryTotalSpan" style="background:#2c3a1a; padding:0 8px; border-radius:30px;">${getCategoryTotal(category)}</span> шт.`;
     let html = `<div class="recipe-list">`;
     for (let i = 0; i < info.items.length; i++) {
@@ -58,22 +63,34 @@ function renderCraftPage(category) {
     for (let i = 0; i < info.items.length; i++) {
         const craftBtn = document.querySelector(`.craft-btn[data-cat="${category}"][data-idx="${i}"][data-action="craft"]`);
         const resetBtn = document.querySelector(`.craft-btn[data-cat="${category}"][data-idx="${i}"][data-action="reset"]`);
+        
         if (craftBtn) {
-            craftBtn.addEventListener('click', () => { 
+            craftBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 const inp = document.getElementById(`amount_input_${category}_${i}`); 
                 let amt = parseInt(inp.value); 
                 if (isNaN(amt) || amt < 1) amt = 1; 
                 if (amt > 99) amt = 99;
                 const oldVal = craftCounts[`${category}_${i}`] || 0;
                 updateItemAmount(category, i, oldVal + amt);
+                return false;
             });
         }
         if (resetBtn) {
-            resetBtn.addEventListener('click', () => { 
+            resetBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 updateItemAmount(category, i, 0);
+                return false;
             });
         }
     }
+    
+    // Восстанавливаем позицию прокрутки
+    setTimeout(() => {
+        window.scrollTo(0, scrollY);
+    }, 10);
 }
 
 function init() {
@@ -84,7 +101,13 @@ function init() {
         renderCraftPage(categoryNames[0]);
         renderCategoryButtons(categoryNames[0]);
     }
-    document.getElementById('resetAllBtn')?.addEventListener('click', resetAllCrafted);
+    const resetBtn = document.getElementById('resetAllBtn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            resetAllCrafted();
+        });
+    }
 }
 
 // Запуск после загрузки DOM
