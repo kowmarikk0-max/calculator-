@@ -1,4 +1,4 @@
-// ===================== ОТРИСОВКА ИНТЕРФЕЙСА =====================
+// ===================== ОТРИСОВКА ИТЕРФЕЙСА =====================
 function renderCategoryButtons(active = null) {
     const grid = document.getElementById('categoryGrid');
     if (!grid) return;
@@ -31,9 +31,6 @@ function renderCraftPage(category) {
     const info = categoriesData[category];
     if (!info) return;
     
-    // Сохраняем текущую позицию прокрутки
-    const scrollY = window.scrollY;
-    
     titleEl.innerHTML = `${info.icon || '🔧'} ${category} | Создано: <span id="categoryTotalSpan" style="background:#2c3a1a; padding:0 8px; border-radius:30px;">${getCategoryTotal(category)}</span> шт.`;
     let html = `<div class="recipe-list">`;
     for (let i = 0; i < info.items.length; i++) {
@@ -45,7 +42,7 @@ function renderCraftPage(category) {
             resHtml += `<span class="resource-item">🔩 ${r} x${a}</span>`;
         }
         resHtml += `</div>`;
-        html += `<div class="recipe-card ${hasCrafted ? 'crafted-positive' : ''}">
+        html += `<div class="recipe-card ${hasCrafted ? 'crafted-positive' : ''}" data-item-idx="${i}">
                     <div class="recipe-name">🔨 ${item.name}</div>
                     ${resHtml}
                     <div class="craft-actions">
@@ -73,7 +70,8 @@ function renderCraftPage(category) {
                 if (isNaN(amt) || amt < 1) amt = 1; 
                 if (amt > 99) amt = 99;
                 const oldVal = craftCounts[`${category}_${i}`] || 0;
-                updateItemAmount(category, i, oldVal + amt);
+                // Используем обновление без перерисовки всей страницы
+                updateItemAmountWithoutRender(category, i, oldVal + amt);
                 return false;
             });
         }
@@ -81,16 +79,54 @@ function renderCraftPage(category) {
             resetBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                updateItemAmount(category, i, 0);
+                updateItemAmountWithoutRender(category, i, 0);
                 return false;
             });
         }
     }
+}
+
+// Новая функция: обновление без перерисовки всей страницы
+function updateItemAmountWithoutRender(category, idx, newValue) {
+    const key = `${category}_${idx}`;
+    const oldValue = craftCounts[key] || 0;
+    if (oldValue === newValue) return;
     
-    // Восстанавливаем позицию прокрутки
-    setTimeout(() => {
-        window.scrollTo(0, scrollY);
-    }, 10);
+    craftCounts[key] = newValue;
+    saveCounts();
+    
+    // Обновляем только конкретный счётчик на странице
+    const countSpan = document.getElementById(`count_display_${category}_${idx}`);
+    if (countSpan) {
+        countSpan.innerText = newValue;
+        // Добавляем визуальный эффект
+        countSpan.style.transform = 'scale(1.1)';
+        setTimeout(() => {
+            if (countSpan) countSpan.style.transform = '';
+        }, 150);
+    }
+    
+    // Обновляем класс crafted-positive у карточки
+    const card = document.querySelector(`.recipe-card[data-item-idx="${idx}"]`);
+    if (card) {
+        if (newValue > 0) {
+            card.classList.add('crafted-positive');
+        } else {
+            card.classList.remove('crafted-positive');
+        }
+    }
+    
+    // Обновляем общее количество в заголовке категории
+    const totalSpan = document.getElementById('categoryTotalSpan');
+    if (totalSpan) {
+        totalSpan.innerText = getCategoryTotal(category);
+    }
+    
+    // Обновляем бейджи на кнопках категорий
+    renderCategoryButtons(category);
+    
+    // Обновляем глобальный итог
+    renderGlobalSummary();
 }
 
 function init() {
