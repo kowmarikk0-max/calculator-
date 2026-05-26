@@ -10,6 +10,7 @@
 <div class="app-container">
     <div class="zone-header">
         <h1>⚙️ МАСТЕРСКАЯ ЗОНЫ | Grotesky ⚙️</h1>
+        <p>Предмет меняет цвет если создано больше 0</p>
     </div>
 
     <div class="category-grid" id="categoryGrid"></div>
@@ -19,10 +20,16 @@
             <h2 id="currentCategoryTitle">🔧 Технологический узел</h2>
             <button class="reset-all-btn" id="resetAllBtn">🗑 Сбросить всё созданное</button>
         </div>
+        <!-- 👇 ЭТОТ БЛОК БЫЛ ОТСУТСТВУЕТ 👇 -->
+        <div id="craftContent">
+            <div class="empty-craft">⬅️ Выберите категорию, чтобы увидеть рецепты</div>
+        </div>
+        <!-- 👆 ЭТОТ БЛОК БЫЛ ОТСУТСТВУЕТ 👆 -->
     </div>
 
     <div id="globalSummaryContainer" class="global-summary-block">
         <div class="global-summary-title">📊 ГЛОБАЛЬНЫЙ ИТОГ (все категории)</div>
+        <div class="summary-empty">Пока нет созданных предметов. Начните крафт в любой вкладке.</div>
     </div>
 </div>
 
