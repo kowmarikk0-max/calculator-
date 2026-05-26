@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Мастерская Зоны Grotesky | Крафт предметов</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-container">
+    <div class="zone-header">
+        <h1>⚙️ МАСТЕРСКАЯ ЗОНЫ | Grotesky ⚙️</h1>
+        <p>Предмет меняет цвет если создано больше 0</p>
+    </div>
+
+    <div class="category-grid" id="categoryGrid"></div>
+
+    <div id="craftPageContainer" class="craft-page">
+        <div class="craft-header">
+            <h2 id="currentCategoryTitle">🔧 Технологический узел</h2>
+            <button class="reset-all-btn" id="resetAllBtn">🗑 Сбросить всё созданное</button>
+        </div>
+        <div id="craftContent">
+            <div class="empty-craft">⬅️ Выберите категорию, чтобы увидеть рецепты</div>
+        </div>
+    </div>
+
+    <div id="globalSummaryContainer" class="global-summary-block">
+        <div class="global-summary-title">📊 ГЛОБАЛЬНЫЙ ИТОГ (все категории)</div>
+        <div class="summary-empty">Пока нет созданных предметов. Начните крафт в любой вкладке.</div>
+    </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
