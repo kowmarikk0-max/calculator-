@@ -17,11 +17,139 @@ function renderCategoryButtons(active = null) {
         }
         btn.addEventListener('click', (e) => {
             e.preventDefault();
+            // Скрываем результаты поиска при выборе категории
+            const searchResults = document.getElementById('searchResults');
+            if (searchResults) searchResults.style.display = 'none';
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) searchInput.value = '';
+            // Снимаем подсветку с выбранного предмета
+            clearSelectedItemHighlight();
             renderCraftPage(cat); 
             renderCategoryButtons(cat); 
         });
         grid.appendChild(btn);
     }
+}
+
+// Глобальная переменная для хранения выбранного через поиск предмета
+let selectedSearchItem = null;
+
+// Функция снятия подсветки
+function clearSelectedItemHighlight() {
+    if (selectedSearchItem) {
+        const prevCard = document.querySelector(`.recipe-card[data-item-idx="${selectedSearchItem.itemIdx}"]`);
+        if (prevCard) {
+            prevCard.classList.remove('search-selected');
+        }
+        selectedSearchItem = null;
+    }
+}
+
+// Функция подсветки выбранного предмета (синеватый оттенок)
+function highlightSelectedItem(category, itemIdx) {
+    // Снимаем предыдущую подсветку
+    clearSelectedItemHighlight();
+    
+    // Сохраняем новый выбранный предмет
+    selectedSearchItem = { category, itemIdx };
+    
+    // Подсвечиваем карточку
+    const card = document.querySelector(`.recipe-card[data-item-idx="${itemIdx}"]`);
+    if (card) {
+        card.classList.add('search-selected');
+        // Прокручиваем к карточке
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Эффект пульсации
+        card.style.transform = 'scale(1.02)';
+        setTimeout(() => {
+            if (card) card.style.transform = '';
+        }, 500);
+    }
+}
+
+// ===================== ФУНКЦИЯ ПОИСКА =====================
+function searchItems(query) {
+    if (!query || query.trim() === '') {
+        const resultsContainer = document.getElementById('searchResults');
+        if (resultsContainer) resultsContainer.style.display = 'none';
+        return;
+    }
+    
+    const searchTerm = query.toLowerCase().trim();
+    const results = [];
+    
+    for (let cat of categoryNames) {
+        const items = categoriesData[cat]?.items;
+        if (!items) continue;
+        
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            const itemName = item.name.toLowerCase();
+            if (itemName.includes(searchTerm)) {
+                results.push({
+                    category: cat,
+                    categoryIcon: categoriesData[cat]?.icon || '📦',
+                    itemIndex: i,
+                    itemName: item.name,
+                    resources: item.resources,
+                    craftedCount: craftCounts[`${cat}_${i}`] || 0
+                });
+            }
+        }
+    }
+    
+    displaySearchResults(results, searchTerm);
+}
+
+function displaySearchResults(results, searchTerm) {
+    const resultsContainer = document.getElementById('searchResults');
+    if (!resultsContainer) return;
+    
+    if (results.length === 0) {
+        resultsContainer.style.display = 'block';
+        resultsContainer.innerHTML = `<div class="search-results"><div class="no-results">🔍 Ничего не найдено по запросу "${searchTerm}"</div></div>`;
+        return;
+    }
+    
+    let html = `<div class="search-results">
+                    <div class="search-stats">📋 Найдено предметов: ${results.length}</div>`;
+    for (let res of results) {
+        const resourcePreview = res.resources.slice(0, 3).map(r => `${r[0]} x${r[1]}`).join(', ');
+        const moreResources = res.resources.length > 3 ? '...' : '';
+        
+        html += `<div class="search-result-item" data-category="${res.category}" data-itemidx="${res.itemIndex}">
+                    <span class="result-category">${res.categoryIcon} ${res.category}</span>
+                    <span class="result-name">🔨 ${res.itemName}</span>
+                    <span class="result-resources">📦 ${resourcePreview}${moreResources}</span>
+                    <span class="crafted-count" style="margin:0;">📊 Создано: ${res.craftedCount} шт.</span>
+                </div>`;
+    }
+    html += `</div>`;
+    resultsContainer.style.display = 'block';
+    resultsContainer.innerHTML = html;
+    
+    // Добавляем обработчики клика на результаты поиска
+    document.querySelectorAll('.search-result-item').forEach(el => {
+        el.addEventListener('click', () => {
+            const category = el.dataset.category;
+            const itemIdx = parseInt(el.dataset.itemidx);
+            
+            // Переключаемся на нужную категорию
+            renderCraftPage(category);
+            renderCategoryButtons(category);
+            
+            // Подсвечиваем выбранный предмет синеватым оттенком
+            setTimeout(() => {
+                highlightSelectedItem(category, itemIdx);
+            }, 100);
+            
+            // Скрываем результаты поиска
+            const searchResults = document.getElementById('searchResults');
+            if (searchResults) searchResults.style.display = 'none';
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) searchInput.value = '';
+        });
+    });
 }
 
 // Функция рекурсивного расчёта ресурсов для целевого предмета
@@ -32,10 +160,8 @@ function calculateTotalResources(category, targetIdx, amount = 1) {
     const targetItem = info.items[targetIdx];
     const totalResources = new Map();
     
-    // Рекурсивная функция для сбора ресурсов
     function collectResources(item, multiplier) {
         for (let [resName, resAmount] of item.resources) {
-            // Проверяем, является ли ресурс предметом из этой же категории
             let isCraftable = false;
             let craftableIdx = -1;
             
@@ -48,10 +174,8 @@ function calculateTotalResources(category, targetIdx, amount = 1) {
             }
             
             if (isCraftable && craftableIdx !== -1) {
-                // Рекурсивно собираем ресурсы для крафтового предмета
                 collectResources(info.items[craftableIdx], multiplier * resAmount);
             } else {
-                // Обычный ресурс
                 const current = totalResources.get(resName) || 0;
                 totalResources.set(resName, current + (resAmount * multiplier));
             }
@@ -62,7 +186,6 @@ function calculateTotalResources(category, targetIdx, amount = 1) {
     return totalResources;
 }
 
-// Функция отображения расчёта ресурсов
 function showResourceCalculation(category, targetIdx, targetName, amount) {
     const totalResources = calculateTotalResources(category, targetIdx, amount);
     
@@ -71,10 +194,8 @@ function showResourceCalculation(category, targetIdx, targetName, amount) {
         return;
     }
     
-    // Сортируем ресурсы по имени
     const sortedResources = Array.from(totalResources.entries()).sort((a, b) => a[0].localeCompare(b[0]));
     
-    // Формируем HTML для отображения
     let resourcesHtml = '<div style="max-height: 300px; overflow-y: auto;">';
     for (let [resName, resQty] of sortedResources) {
         resourcesHtml += `<div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #5a7842;">
@@ -84,7 +205,6 @@ function showResourceCalculation(category, targetIdx, targetName, amount) {
     }
     resourcesHtml += '</div>';
     
-    // Создаём или обновляем модальное окно
     let modal = document.getElementById('resourceModal');
     if (!modal) {
         modal = document.createElement('div');
@@ -126,7 +246,6 @@ function showResourceCalculation(category, targetIdx, targetName, amount) {
     
     modal.style.display = 'flex';
     
-    // Закрытие модального окна
     document.getElementById('closeModalBtn').addEventListener('click', () => {
         modal.style.display = 'none';
     });
@@ -135,7 +254,6 @@ function showResourceCalculation(category, targetIdx, targetName, amount) {
     });
 }
 
-// Временное сообщение
 function showTempMessage(message, type = 'info') {
     const msgDiv = document.createElement('div');
     msgDiv.className = `temp-message`;
@@ -189,12 +307,13 @@ function renderCraftPage(category) {
         const item = info.items[i];
         const cur = craftCounts[`${category}_${i}`] || 0;
         const hasCrafted = cur > 0;
+        const isSearchSelected = (selectedSearchItem && selectedSearchItem.category === category && selectedSearchItem.itemIdx === i);
         let resHtml = `<div class="resources-req">`;
         for (let [r, a] of item.resources) {
             resHtml += `<span class="resource-item">🔩 ${r} x${a}</span>`;
         }
         resHtml += `</div>`;
-        html += `<div class="recipe-card ${hasCrafted ? 'crafted-positive' : ''}" data-item-idx="${i}">
+        html += `<div class="recipe-card ${hasCrafted ? 'crafted-positive' : ''} ${isSearchSelected ? 'search-selected' : ''}" data-item-idx="${i}">
                     <div class="recipe-name">🔨 ${item.name}</div>
                     ${resHtml}
                     <div class="craft-actions">
@@ -219,6 +338,10 @@ function renderCraftPage(category) {
             craftBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                // При взаимодействии с предметом снимаем подсветку
+                if (selectedSearchItem) {
+                    clearSelectedItemHighlight();
+                }
                 const inp = document.getElementById(`amount_input_${category}_${i}`); 
                 let amt = parseInt(inp.value); 
                 if (isNaN(amt) || amt < 1) amt = 1; 
@@ -232,6 +355,10 @@ function renderCraftPage(category) {
             resetBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                // При взаимодействии с предметом снимаем подсветку
+                if (selectedSearchItem) {
+                    clearSelectedItemHighlight();
+                }
                 updateItemAmountWithoutRender(category, i, 0);
                 return false;
             });
@@ -252,7 +379,6 @@ function renderCraftPage(category) {
     }
 }
 
-// Функция обновления без перерисовки всей страницы
 function updateItemAmountWithoutRender(category, idx, newValue) {
     const key = `${category}_${idx}`;
     const oldValue = craftCounts[key] || 0;
@@ -261,7 +387,6 @@ function updateItemAmountWithoutRender(category, idx, newValue) {
     craftCounts[key] = newValue;
     saveCounts();
     
-    // Обновляем счётчик
     const countSpan = document.getElementById(`count_display_${category}_${idx}`);
     if (countSpan) {
         countSpan.innerText = newValue;
@@ -271,7 +396,6 @@ function updateItemAmountWithoutRender(category, idx, newValue) {
         }, 150);
     }
     
-    // Обновляем класс карточки
     const card = document.querySelector(`.recipe-card[data-item-idx="${idx}"]`);
     if (card) {
         if (newValue > 0) {
@@ -281,13 +405,11 @@ function updateItemAmountWithoutRender(category, idx, newValue) {
         }
     }
     
-    // Обновляем общее количество в категории
     const totalSpan = document.getElementById('categoryTotalSpan');
     if (totalSpan) {
         totalSpan.innerText = getCategoryTotal(category);
     }
     
-    // Обновляем бейджи и глобальный итог
     renderCategoryButtons(category);
     renderGlobalSummary();
 }
@@ -304,6 +426,31 @@ function init() {
         resetBtn.addEventListener('click', (e) => {
             e.preventDefault();
             resetAllCrafted();
+        });
+    }
+    
+    // ===== ИНИЦИАЛИЗАЦИЯ ПОИСКА =====
+    const searchInput = document.getElementById('searchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            searchItems(e.target.value);
+        });
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchItems(e.target.value);
+            }
+        });
+    }
+    
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', () => {
+            if (searchInput) searchInput.value = '';
+            const searchResults = document.getElementById('searchResults');
+            if (searchResults) searchResults.style.display = 'none';
+            // Снимаем подсветку при очистке поиска
+            clearSelectedItemHighlight();
         });
     }
 }
