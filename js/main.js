@@ -119,7 +119,7 @@ function displaySearchResults(results, searchTerm) {
         
         html += `<div class="search-result-item" data-category="${res.category}" data-itemidx="${res.itemIndex}">
                     <span class="result-category">${res.categoryIcon} ${res.category}</span>
-                    <span class="result-name">🔨 ${res.itemName}</span>
+                    <span class="result-name">${res.itemName}</span>
                     <span class="result-resources">📦 ${resourcePreview}${moreResources}</span>
                     <span class="crafted-count" style="margin:0;">📊 Создано: ${res.craftedCount} шт.</span>
                 </div>`;
