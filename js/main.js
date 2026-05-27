@@ -199,7 +199,7 @@ function showResourceCalculation(category, targetIdx, targetName, amount) {
     let resourcesHtml = '<div style="max-height: 300px; overflow-y: auto;">';
     for (let [resName, resQty] of sortedResources) {
         resourcesHtml += `<div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #5a7842;">
-                            <span style="color: #ffe8a0;">🔩 ${resName}</span>
+                            <span style="color: #ffe8a0;">${resName}</span>
                             <span style="color: #f5bc4e; font-weight: bold;">${resQty} шт.</span>
                           </div>`;
     }
@@ -310,7 +310,7 @@ function renderCraftPage(category) {
         const isSearchSelected = (selectedSearchItem && selectedSearchItem.category === category && selectedSearchItem.itemIdx === i);
         let resHtml = `<div class="resources-req">`;
         for (let [r, a] of item.resources) {
-            resHtml += `<span class="resource-item">🔩 ${r} x${a}</span>`;
+            resHtml += `<span class="resource-item">${r} x${a}</span>`;
         }
         resHtml += `</div>`;
         html += `<div class="recipe-card ${hasCrafted ? 'crafted-positive' : ''} ${isSearchSelected ? 'search-selected' : ''}" data-item-idx="${i}">
