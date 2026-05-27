@@ -4,7 +4,6 @@
     box-sizing: border-box;
     font-family: 'Segoe UI', 'Roboto', 'Courier New', monospace;
 }
-
 body {
     background: radial-gradient(circle at 20% 30%, #1a2a1f, #0a0f0a);
     background-attachment: fixed;
