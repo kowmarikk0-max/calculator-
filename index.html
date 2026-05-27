@@ -10,7 +10,15 @@
 <div class="app-container">
     <div class="zone-header">
         <h1>⚙️ МАСТЕРСКАЯ ЗОНЫ | Grotesky ⚙️</h1>
+        <p>🔍 Поиск по всем предметам | Предмет меняет цвет если создано больше 0</p>
     </div>
+
+    <!-- БЛОК ПОИСКА -->
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Поиск предмета... (например: модуль, аптечка, патроны)">
+        <button id="clearSearchBtn" class="clear-search">✖ Очистить</button>
+    </div>
+    <div id="searchResults" style="display: none;"></div>
 
     <div class="category-grid" id="categoryGrid"></div>
 
@@ -19,11 +27,9 @@
             <h2 id="currentCategoryTitle">🔧 Технологический узел</h2>
             <button class="reset-all-btn" id="resetAllBtn">🗑 Сбросить всё созданное</button>
         </div>
-        <!-- 👇 ЭТОТ БЛОК БЫЛ ОТСУТСТВУЕТ 👇 -->
         <div id="craftContent">
             <div class="empty-craft">⬅️ Выберите категорию, чтобы увидеть рецепты</div>
         </div>
-        <!-- 👆 ЭТОТ БЛОК БЫЛ ОТСУТСТВУЕТ 👆 -->
     </div>
 
     <div id="globalSummaryContainer" class="global-summary-block">
