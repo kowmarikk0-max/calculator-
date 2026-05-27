@@ -296,3 +296,105 @@ body::before {
         font-size: 1rem;
     }
 }
+/* Подсветка выбранного через поиск предмета (синеватый оттенок) */
+.recipe-card.search-selected {
+    background: #2a4a6baa;
+    border: 2px solid #4abcf5;
+    box-shadow: 0 0 15px rgba(74, 188, 245, 0.5);
+    transition: all 0.3s ease;
+}
+/* ===== СТИЛИ ДЛЯ ПОИСКА ===== */
+.search-container {
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.search-input {
+    flex: 1;
+    background: #141f0e;
+    border: 1px solid #b99746;
+    border-radius: 3rem;
+    padding: 0.7rem 1.2rem;
+    color: #ffe8a0;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.2s;
+}
+.search-input:focus {
+    border-color: #f5bc4e;
+    box-shadow: 0 0 8px rgba(245, 188, 78, 0.3);
+}
+.search-input::placeholder {
+    color: #8aaa6a;
+}
+.search-results {
+    background: #0f170cd9;
+    backdrop-filter: blur(12px);
+    border-radius: 2rem;
+    border: 1px solid #728f4e;
+    padding: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    max-height: 400px;
+    overflow-y: auto;
+}
+.search-result-item {
+    background: #1a2413aa;
+    border-radius: 1rem;
+    padding: 0.8rem;
+    margin-bottom: 0.6rem;
+    border: 1px solid #7d965b;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.search-result-item:hover {
+    background: #4a6b2faa;
+    border-color: #f5bc4e;
+}
+.result-category {
+    background: #2f3c1f;
+    padding: 0.2rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    color: #e8e8c0;
+}
+.result-name {
+    font-weight: bold;
+    color: #ffe8a0;
+    flex: 1;
+}
+.result-resources {
+    font-size: 0.7rem;
+    color: #d0e0b0;
+}
+.no-results {
+    text-align: center;
+    color: #d0e0b0;
+    padding: 2rem;
+    font-style: italic;
+}
+.clear-search {
+    background: #582c1c;
+    border: none;
+    padding: 0.4rem 1.2rem;
+    border-radius: 2rem;
+    color: #ffe0b0;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+.clear-search:hover {
+    background: #8b2c1c;
+}
+.search-stats {
+    color: #e8f0d0;
+    font-size: 0.8rem;
+    padding: 0.2rem 0;
+}
