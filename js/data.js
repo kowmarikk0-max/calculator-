@@ -20,21 +20,21 @@ const categoriesData = {
 
 
 "Одежда Лега III": { 
-        icon: "⛓️", 
+        icon: "👙", 
         items: [ 
             
         ] 
     },
 
 "Одежда Лега V": { 
-        icon: "⛓️", 
+        icon: "👗", 
         items: [ 
             
         ] 
     },
 
 "Одежда Лега X": { 
-        icon: "⛓️", 
+        icon: "👔", 
         items: [ 
             
         ] 
